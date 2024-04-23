@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- configuração do documento -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Fael</title>
+  <!-- bibliotecas externas -->
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- CSS (estilização) -->
+
+  <style>  body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+
+.account-button.clicked {
+    background-color: #333;
+    color: #fff;
+}
+
+#login-form {
+    background-color: #fff;
+    z-index: 555;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    margin: 50px auto;
+    padding: 20px;
+    position: fixed;
+    text-align: center;
+    overflow: auto;
+}
+
+#login-form.dragging {
+    }
+
+    #login-form .drag-handle {
+        height: 20px;
+        background-color: #f9f9f9;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        cursor: grab;
+        padding: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #login-form .drag-handle i {
+        color: #333;
+    }
+
+.input-field,
+textarea,
+input,
+select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.account-button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.account-button:hover {
+    background-color: #45a049;
+}
+
+
+    #account-buttons,
+    .button-container,
+    .zoom-buttons {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        margin-top: 10px;
+        z-index: 1;
+    }
+
+    .zoom-btn {
+        margin-right: 5px;
+    }
+
+    .popup {
+        position: fixed;
+        background-color: #363b44;
+        height: 768px;
+        width: 1360px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        overflow: auto;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .popup.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .title {
+        font-size: 60px;
+        margin-bottom: 10px;
+        padding: 40px;
+        background-color: #f9f9f9;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        cursor: grab;
+    }
+
+    .iframe-container {
+        transform: scale(0.35);
+        position: absolute;
+        height: 768px;
+        width: 1360px;
+        top: -200px;
+        left: -400px;
+    }
+
+    .iframe-container iframe {
+        height: 768px;
+        width: 1360px;
+        border: none;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        height: 100px;
+        background-color: #f9f9f9;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        color: #fff;
+    }
+
+    .close-btn,
+    .fullscreen-btn {
+        cursor: pointer;
+        color: #fff;
+        font-size: 50px;
+    }
+
+    .close-btn:hover,
+    .fullscreen-btn:hover {
+        font-size: 50px;
+        text-decoration: underline;
+    }
+
+    .cooldown-message {
+        color: #e74c3c;
+        font-size: 14px;
+    }
+</style>
+<meta name="google-adsense-account" content="ca-pub-2967227069215725">
+</head>
+
+<body>
+  <!-- Formulário de login -->
+  <div id="login-form">
+    <!-- cabeçalho do formulário com icone para arrastar -->
+    <div class="drag-handle">
+      <i data-feather="move"></i>
+    </div>
+    <div class="drag-container">
+      <!-- inputs -->
+      <label for="logins">Email:</label>
+      <input type=file id="fileinput" accept=".txt">
+      <textarea placeholder="eu@gmail.com
+  eu1@gmail.com
+  eu2@gmail.com
+  Caso não consiga aceder contacte o criador via discord: falling.fael" id="logins" rows="6"></textarea>
+      <label for="password">Senha:</label>
+      <input placeholder="12345678" type="password" id="password" required>
+      <br>
+      <label for="server">Servidor:</label><input placeholder="250" type="text" id="server" required>
+      <br>
+      <label for="region">Região:</label>
+      <select id="region" name="language">
+        <option value="pt">pt - Português</option>
+        <option value="en">en - English</option>
+        <option value="de">de - Deutsch</option>
+        <option value="es">es - Español</option>
+        <option value="pl">pt - Polski</option>
+        <option value="fr">fr - Français</option>
+      </select>
+      <br>
+      <button type="button" onclick="generatePopups()">Criar botões de login</button>
+    </div>
+    <script>
+      feather.replace();
+
+      $(document).ready(function() {
+        var isDragging = false;
+        var initialMouseX, initialMouseY, initialFormOffsetX, initialFormOffsetY;
+
+        $("#login-form .drag-handle").mousedown(function(e) {
+          isDragging = true;
+          var offset = $("#login-form").offset();
+          initialMouseX = e.clientX;
+          initialMouseY = e.clientY;
+          initialFormOffsetX = offset.left;
+          initialFormOffsetY = offset.top;
+          $("#login-form").addClass("dragging");
+
+          // Impedir a seleção de texto durante o arraste
+          e.preventDefault();
+        });
+
+        $(document).mousemove(function(e) {
+          if (isDragging) {
+            var offsetX = e.clientX - initialMouseX;
+            var offsetY = e.clientY - initialMouseY;
+
+            $("#login-form").css({
+              top: initialFormOffsetY + offsetY,
+              left: initialFormOffsetX + offsetX,
+            });
+          }
+        });
+
+        $(document).mouseup(function() {
+          isDragging = false;
+          $("#login-form").removeClass("dragging");
+        });
+      });
+</script>
+
+    <div id="account-buttons"></div>
+
+    <script>
+
+      var buttonCooldown = false;
+      var whitelist = ['idk@idk.idk',
+        'idk1@idk.idk',
+        'idk2@idk.idk',
+        'idk3@idk.idk',
+        'idk4@idk.idk',
+        'idk5@idk.idk',
+        'idk6@idk.idk',
+        'idk7@idk.idk',
+        'idk8@idk.idk',
+        'idk9@idk.idk',
+        'idk10@idk.idk',
+        '1p32d9d@n.nix',
+        '2p32d9d@n.nix',
+        '3p32d9d@n.nix',
+        '4p32d9d@n.nix',
+        '5p32d9d@n.nix',
+        '6p32d9d@n.nix',
+        '7p32d9d@n.nix',
+        '8p32d9d@n.nix',
+        '9p32d9d@n.nix',
+        '10p32d9d@n.nix',
+        '11p32d9d@n.nix',
+        '12p32d9d@n.nix',
+        '13p32d9d@n.nix',
+        '14p32d9d@n.nix',
+        '15p32d9d@n.nix',
+        '16p32d9d@n.nix',
+        '17p32d9d@n.nix',
+        '18p32d9d@n.nix',
+        '19p32d9d@n.nix',
+        '20p32d9d@n.nix',
+        '21p32d9d@n.nix',
+        '22p32d9d@n.nix',
+        '23p32d9d@n.nix',
+        '24p32d9d@n.nix',
+        '25p32d9d@n.nix',
+        '26p32d9d@n.nix',
+        '27p32d9d@n.nix',
+        '28p32d9d@n.nix',
+        '29p32d9d@n.nix',
+        '30p32d9d@n.nix',
+        '31p32d9d@n.nix',
+        '32p32d9d@n.nix',
+        '33p32d9d@n.nix',
+        '34p32d9d@n.nix',
+        '35p32d9d@n.nix',
+        '36p32d9d@n.nix',
+        '37p32d9d@n.nix',
+        '38p32d9d@n.nix',
+        '39p32d9d@n.nix',
+        '40p32d9d@n.nix',
+        '41p32d9d@n.nix',
+        '42p32d9d@n.nix',
+        '43p32d9d@n.nix',
+        '44p32d9d@n.nix',
+        '45p32d9d@n.nix',
+        '46p32d9d@n.nix',
+        '47p32d9d@n.nix',
+        '48p32d9d@n.nix',
+        '49p32d9d@n.nix',
+        '50p32d9d@n.nix',
+        '51p32d9d@n.nix',
+        '52p32d9d@n.nix',
+        '53p32d9d@n.nix',
+        '54p32d9d@n.nix',
+        '55p32d9d@n.nix',
+        '56p32d9d@n.nix',
+        '57p32d9d@n.nix',
+        '58p32d9d@n.nix',
+        '59p32d9d@n.nix',
+        '60p32d9d@n.nix',
+        '61p32d9d@n.nix',
+        '62p32d9d@n.nix',
+        '63p32d9d@n.nix',
+        '64p32d9d@n.nix',
+        '65p32d9d@n.nix',
+        '66p32d9d@n.nix',
+        '67p32d9d@n.nix',
+        '68p32d9d@n.nix',
+        '69p32d9d@n.nix',
+        '70p32d9d@n.nix',
+        '71p32d9d@n.nix',
+        '72p32d9d@n.nix',
+        '73p32d9d@n.nix',
+        '74p32d9d@n.nix',
+        '75p32d9d@n.nix',
+        '76p32d9d@n.nix',
+        '77p32d9d@n.nix',
+        '78p32d9d@n.nix',
+        '79p32d9d@n.nix',
+        '80p32d9d@n.nix',
+        '81p32d9d@n.nix',
+        '82p32d9d@n.nix',
+        '83p32d9d@n.nix',
+        '84p32d9d@n.nix',
+        '85p32d9d@n.nix',
+        '86p32d9d@n.nix',
+        '87p32d9d@n.nix',
+        '88p32d9d@n.nix',
+        '89p32d9d@n.nix',
+        '90p32d9d@n.nix',
+        '91p32d9d@n.nix',
+        '92p32d9d@n.nix',
+        '93p32d9d@n.nix',
+        '94p32d9d@n.nix',
+        '95p32d9d@n.nix',
+        '96p32d9d@n.nix',
+        '97p32d9d@n.nix',
+        '98p32d9d@n.nix',
+        '99p32d9d@n.nix',
+        '100p32d9d@n.nix',
+        '101p32d9d@n.nix',
+        '102p32d9d@n.nix',
+        '103p32d9d@n.nix',
+        '104p32d9d@n.nix',
+        '105p32d9d@n.nix',
+        '106p32d9d@n.nix',
+        '107p32d9d@n.nix',
+        '108p32d9d@n.nix',
+        '109p32d9d@n.nix',
+        '110p32d9d@n.nix',
+        '111p32d9d@n.nix',
+        '112p32d9d@n.nix',
+        '113p32d9d@n.nix',
+        '114p32d9d@n.nix',
+        '115p32d9d@n.nix',
+        '116p32d9d@n.nix',
+        '117p32d9d@n.nix',
+        '118p32d9d@n.nix',
+        '119p32d9d@n.nix',
+        '120p32d9d@n.nix',
+        '121p32d9d@n.nix',
+        '122p32d9d@n.nix',
+        '123p32d9d@n.nix',
+        '124p32d9d@n.nix',
+        '125p32d9d@n.nix',
+        '126p32d9d@n.nix',
+        '127p32d9d@n.nix',
+        '128p32d9d@n.nix',
+        '129p32d9d@n.nix',
+        '130p32d9d@n.nix',
+        '131p32d9d@n.nix',
+        '132p32d9d@n.nix',
+        '133p32d9d@n.nix',
+        '134p32d9d@n.nix',
+        '135p32d9d@n.nix',
+        '136p32d9d@n.nix',
+        '137p32d9d@n.nix',
+        '138p32d9d@n.nix',
+        '139p32d9d@n.nix',
+        '140p32d9d@n.nix',
+        '141p32d9d@n.nix',
+        '142p32d9d@n.nix',
+        '143p32d9d@n.nix',
+        '144p32d9d@n.nix',
+        '145p32d9d@n.nix',
+        '146p32d9d@n.nix',
+        '147p32d9d@n.nix',
+        '148p32d9d@n.nix',
+        '149p32d9d@n.nix',
+        '150p32d9d@n.nix',
+      ];
+
+      function generatePopups() {
+        if (buttonCooldown) {
+          showCooldownMessage();
+          return;
+        }
+        var loginsInput = document.getElementById('logins');
+        var passwordInput = document.getElementById('password');
+        var serverInput = document.getElementById('server');
+        var regionInput = document.getElementById('region');
+
+        var logins = loginsInput.value;
+        var password = passwordInput.value;
+        var server = serverInput.value;
+        var region = regionInput.value;
+
+        var lines = logins.split('\n');
+
+        var accountbuttons = document.getElementById('account-buttons');
+
+        lines.forEach(function(line, index) {
+          var trimmedline = line.trim();
+
+          var shouldinclude = false;
+
+          if (whitelist.includes(trimmedline) || (!trimmedline.includes('@'))) {
+            shouldinclude = true;
+          }
+
+        if(shouldinclude){
+          var button = document.createElement('button');
+          button.className = 'account-button';
+          button.textContent = 'Conta' + (index + 1);
+          button.addEventListener('click', function(){
+            if(!buttonCooldown){
+              buttonCooldown = true;
+              openPopup(trimmedline, password, server, region, button.textContent);
+              button.classList.add('clicked');
+
+              setTimeout(function (){
+                buttonCooldown = false;
+                button.classList.remove('clicked');
+              }, 10000);
+            } else{
+              showCooldownMessage();
+            }
+          });
+
+          accountbuttons.appendChild(button);
+        }
+      });
+    }
+
+      function openPopup(username, password, server, region, buttonName){
+        var iframeContainer = document.createElement('div');
+        iframeContainer.className = "popup";
+        iframeContainer.style.boxshadow= '0 0 10px rgba(0, 0, 0, 0.5)';
+        iframeContainer.style.overflow= 'auto';
+        iframeContainer.style.display= 'none';
+        iframeContainer.style.opacity= '0';
+        iframeContainer.style.transition= 'opacity 0.3s, transform 0.3s';
+        iframeContainer.style.position= 'fixed';
+        var iframeContainer = document.createElement('div');
+        iframeContainer.className = 'iframe-container';
+
+        var isDragging = false;
+        var initialMouseX, initialMouseY;
+        var initialPopupX, initialPopupY;
+
+        var title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = buttonName;
+        title.style.cursor = 'grab';
+
+        title.addEventListener('mousedown', function (event){
+          isDragging = true;
+          initialMouseX = event.clientX;
+          initialMouseY = event.clientY;
+
+          var rect = iframeContainer.getBoundingClientRect();
+          initialPopupX = rect.left / 5;
+          initialPopupY = rect.top / 5;
+
+          iframeContainer.style.transition = 'none';
+        });
+
+        document.addEventListener('mousemove', function (event){
+          if(isDragging){
+            var deltaX = event.clientX - initialMouseX;
+            var deltaY = event.clientY - initialMouseY;
+
+            iframeContainer.style.left = (initialPopupX + deltaX) + 'px';
+            iframeContainer.style.top = (initialPopupY + deltaY) + 'px';
+          }
+        });
+
+        document.addEventListener('mouseup', function (){
+          if (isDragging){
+            isDragging = false;
+            iframeContainer.style.transition = 'opacity 0.3s';
+          }
+        });
+
+        var iframe = document.createElement('iframe');
+        iframe.src = 'about:blank';
+        iframeContainer.appendChild(iframe);
+
+        var closeButton = document.createElement('span');
+        closeButton.addEventListener('click', function(){
+          iframeContainer.parentNode.removeChild(iframeContainer);
+        });
+
+        var actions = document.createElement('div');
+        actions.className = 'actions';
+        var fullscreenButton = document.createElement('button');
+        fullscreenButton.textContent = 'Fechar';
+        fullscreenButton.className = 'fullscreen-btn';
+        fullscreenButton.addEventListener('click', function(){
+          iframeContainer.parentNode.removeChild(iframeContainer);
+        });
+
+        actions.appendChild(fullscreenButton);
+        actions.appendChild(closeButton);
+        iframeContainer.appendChild(title);
+        iframeContainer.appendChild(actions);
+        document.body.appendChild(iframeContainer);
+
+        iframeContainer.style.zIndex = '1000';
+        document.body.appendChild(iframeContainer);
+
+        var doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write('<h2>Pop-up</h2>');
+        doc.write('<p>A redirecionar...</p>');
+        doc.close();
+
+        var redirectUrl =
+        'https://passport.oasgames.com/index.php?m=login&email=' +
+        encodeURIComponent(username) +
+        '&pwd=' +
+        encodeURIComponent(password);
+
+        setTimeout(function(){
+          iframe.contentWindow.location.href = redirectUrl;
+        }, 0);
+
+        setTimeout(function(){
+          var finalUrl =
+          'https://naruto.oasgames.com/' +
+          encodeURIComponent(region) +
+          '/serverlist/s' +
+          encodeURIComponent(server) +
+          '?leftbar_collapse=yes&logintype=4';
+          iframe.contentWindow.location.href = finalUrl;
+        }, 5000);
+      }
+      </script>
+      <script>
+        feather.replace();
+      </script>
+      <script>
+        function apagarDiv(){
+          var divLogin = document.querySelector('.login-form');
+          if (divlogin){
+            divLogin.remove();
+          }
+        }
+      </script>
+      <script>
+        $(document).ready(function(){
+          $('.account-button').click(function(){
+            $(this).addClass('clicked');
+          });
+        });
+      </script>
+      <script>
+        document.getElementById('fileinput').addEventListener('change', function(event){
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function(e){
+            const contents = e.target.result;
+            document.getElementById('logins').value = contents;
+          };
+          reader.readAsText(file);
+        });
+      </script>
+    </body>
+</html>
